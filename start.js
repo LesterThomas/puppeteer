@@ -38,8 +38,11 @@ const clickByText = async (page, text) => {
   const innerText = await page.evaluate(() => document.querySelector('.input__label--above').innerText);
   if (innerText=='What was the name of your best friend at school?') {
     await page.keyboard.type(credentials.friend);
+  } else if (innerText=='Where did you grow up?') {
+    await page.keyboard.type(credentials.grow);
   } else {
     await page.keyboard.type(credentials.school);
+
   }
   //await page.goto('http://product-recall.s3-website.eu-west-2.amazonaws.com/');
   //await clickByText(page, `View Products`);
