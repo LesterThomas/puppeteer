@@ -1,0 +1,31 @@
+{
+  "name": "puppeteer",
+  "version": "1.0.0",
+  "description": "Example app using Headless Chrome (Puppeteer)",
+  "main": "start.js",
+  "scripts": {
+    "test": "node start.js",
+    "start": "node start.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LesterThomas/puppeteer"
+  },
+  "keywords": [
+    "puppeteer",
+    "headless chrome",
+    "chrome",
+    "javascript",
+    "nodejs"
+  ],
+  "author": "Lester Thomas",
+  "license": "Apache 2.0",
+  "bugs": {
+    "url": "https://github.com/LesterThomas/puppeteer/issues"
+  },
+  "homepage": "https://github.com/LesterThomas/puppeteer#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "puppeteer": "^1.11.0"
+  }
+}

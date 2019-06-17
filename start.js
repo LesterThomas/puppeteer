@@ -76,16 +76,20 @@ const ratesetter = async(page, browser) => {
 }
 
 
+
+
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
+
+
 (async () => {
-  const browser = await puppeteer.launch();  //{headless: false,  slowMo: 50}); //devtools: true,
+  const browser = await puppeteer.launch({headless: false,  slowMo: 50}); //devtools: true,
   const page = await browser.newPage();
   //page.on('console', (log) => console[log._type](log._text));
   
   await fundingcircle(page, browser);
   await ratesetter(page, browser);
   
-  
-
-
+  await delay(5000);
   await browser.close();
 })();
