@@ -1,6 +1,5 @@
 
 const puppeteer = require('puppeteer');
-const cred = require('./cred.js');
 const escapeXpathString = str => {
   const splitedQuotes = str.replace(/'/g, `', "'", '`);
   return `concat('${splitedQuotes}', '')`;
@@ -10,7 +9,7 @@ const rooms = {
   '4': [{room: 12, id:140}, {room: 14, id:142}, {room: 16, id:144}],
   '5': [{room: 4, id:132}, {room: 6, id:134}, {room: 7, id:135}, {room: 13, id:141}],
   '6': [{room: 1, id:129}],
-  '8': [{room: 2, id:130}, {room: 3, id:131}, {room: 5, id:133}, {room: 8, id:136}],
+  '8': [ {room: 8, id:136}, {room: 5, id:133}, {room: 2, id:130}, {room: 3, id:131}],
   '10': [{room: 9, id:137}],
   '16': [{room: 10, id:138}, {room: 11, id:139}]
 }
@@ -47,52 +46,56 @@ return tableArray;
 
 // helper funtion to book a room
 const bookRoom = async (page, roomBooking) => {
+    try {
+    var roomsArray = rooms[roomBooking.size];
+    var complete=false;
 
-  var roomsArray = rooms[roomBooking.size];
-  var complete=false;
+    for (var i in roomsArray) {
+      const url = 'https://vodafone-global.condecosoftware.com/core27/BookingForm/BookingForm.aspx?bookingID=0' +
+      '&roomID=' + roomsArray[i].id + 
+      '&startTime=' + roomBooking.startTime + 
+      '&endTime=' + roomBooking.endTime + 
+      '&startDate=' + roomBooking.startDate +  
+      '&managed=0&selfSelect=0&int_popup=1&bookDate=' + roomBooking.startDate + '&IsPrRoom=0&IsVcRoom=0&deliveryPoint=0&countryID=1&userDefinedLocation=14&businessUnitID=37&userDefinedFloor=';
 
-  for (var i in roomsArray) {
-    const url = 'https://vodafone-global.condecosoftware.com/core27/BookingForm/BookingForm.aspx?bookingID=0' +
-    '&roomID=' + roomsArray[i].id + 
-    '&startTime=' + roomBooking.startTime + 
-    '&endTime=' + roomBooking.endTime + 
-    '&startDate=' + roomBooking.startDate +  
-    '&managed=0&selfSelect=0&int_popup=1&bookDate=' + roomBooking.startDate + '&IsPrRoom=0&IsVcRoom=0&deliveryPoint=0&countryID=1&userDefinedLocation=14&businessUnitID=37&userDefinedFloor=';
+      await page.goto(url);
 
-    await page.goto(url);
+      await page.waitFor('#acceptMessagesButtonID');
+      await page.click('input[id="acceptMessagesButtonID"]'); // press accept button
 
-    await page.waitFor('#acceptMessagesButtonID');
-    await page.click('input[id="acceptMessagesButtonID"]'); // press accept button
-
-    //update the name of the meeting
-    var eventName = ' mtg';
-    if (roomBooking.name) {
-      var eventName = roomBooking.name + eventName;
-    }
-    await page.focus('#gen_meetingTitle');
-    await page.keyboard.type(eventName);
+      //update the name of the meeting
+      var eventName = ' mtg';
+      if (roomBooking.name) {
+        var eventName = roomBooking.name + eventName;
+      }
+      await page.focus('#gen_meetingTitle');
+      await page.keyboard.type(eventName);
 
 
 
-    await page.waitFor('#saveAndClose');
-    await page.click('input[id="saveAndClose"]'); // press book button
-
-    const selector = '#div_EditTimeError';
-  
-    var errorMsg = await page.$eval(selector, (element) => {
-      return element.innerHTML
-    })
-    if (errorMsg=='One or more rooms are either alternatives to your selection or not available.'){
-      await page.click('input[id="bookTimeBtn"]'); // press book button
-      await page.click('body > div.ui-dialog.ui-widget.ui-widget-content.ui-corner-all.ui-front.cstmGrayDialog.orangeTitleDialog.cstmAlert.no_closebtn.ui-dialog-buttons > div.ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix > div > button.blueHlgtBtns.ui-button.ui-widget.ui-state-default.ui-corner-all.ui-button-text-only'); // press accept button
+      await page.waitFor('#saveAndClose');
       await page.click('input[id="saveAndClose"]'); // press book button
-      
+
+      const selector = '#div_EditTimeError';
+    
+      var errorMsg = await page.$eval(selector, (element) => {
+        return element.innerHTML
+      })
+      if (errorMsg=='One or more rooms are either alternatives to your selection or not available.'){
+        await page.click('input[id="bookTimeBtn"]'); // press book button
+        await page.click('body > div.ui-dialog.ui-widget.ui-widget-content.ui-corner-all.ui-front.cstmGrayDialog.orangeTitleDialog.cstmAlert.no_closebtn.ui-dialog-buttons > div.ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix > div > button.blueHlgtBtns.ui-button.ui-widget.ui-state-default.ui-corner-all.ui-button-text-only'); // press accept button
+        await page.click('input[id="saveAndClose"]'); // press book button
+        
+        return true;
+      } else if (errorMsg=='No rooms available at your specified time. Please change the time or press ‘Undo changes’ to keep the original booking.') {
+        //console.log("Failed to book room for  " +  roomBooking.startDate + " " + roomBooking.startTime + "-" + roomBooking.endTime);
+        return false;
+      }
       return true;
-    } else if (errorMsg=='No rooms available at your specified time. Please change the time or press ‘Undo changes’ to keep the original booking.') {
-      //console.log("Failed to book room for  " +  roomBooking.startDate + " " + roomBooking.startTime + "-" + roomBooking.endTime);
-      return false;
     }
-    return true;
+  } catch (error){
+    console.log(error);
+    return false;
   }
 
 };
@@ -128,6 +131,7 @@ const loginAndNavigateToApp = async (page, browser) => {
     await page.click('input[type="submit"]'); // With type
     await page.waitFor('#bs-example-navbar-collapse-1 > ul > li > a');
   }
+  await delay(1000);
   await clickByText(page, `Go to app`);
   await page.waitFor('#divNotificationBar');
 
@@ -150,7 +154,7 @@ const condeco = async(page, browser) => {
           day:1,  //Monday=1; tuesday=2 etc
           startTime: '10:00',
           endTime: '11:00',
-          size: 5,
+          size: 4,
           name: 'Team weekly'
         },       
         {
@@ -164,7 +168,7 @@ const condeco = async(page, browser) => {
           day:2,  //Monday=1; tuesday=2 etc
           startTime: '15:00',
           endTime: '16:00',
-          size: 5,
+          size: 4,
           name: 'weekly'
         },
         {
@@ -185,7 +189,7 @@ const condeco = async(page, browser) => {
           day:4,  //Monday=1; tuesday=2 etc
           startTime: '10:30',
           endTime: '12:00',
-          size: 5,
+          size: 8,
           name: 'Catalyst project'
         },       
         {
