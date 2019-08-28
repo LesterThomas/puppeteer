@@ -9,15 +9,18 @@
     "version": "0.1.0",
     "node-red": {
         "nodes": {
-            "get-outlook-auth": "get-outlook-auth.js"
+            "get-outlook-auth": "get-outlook-auth.js",
+            "microsoft-api-connection": "microsoft-api-connection.js",
+            "get-outlook-calendar": "get-outlook-calendar.js"
         }
     },
     "keywords": [
         "node-red"
     ],
     "dependencies": {
-        "request": "^2.88.0",
-        "puppeteer": "^1.11.0"
+        "moment": "^2.24.0",
+        "puppeteer": "^1.11.0",
+        "request": "^2.88.0"
     },
     "devDependencies": {
         "eslint": "^5.16.0",

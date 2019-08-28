@@ -4,6 +4,8 @@
         color: '#a6bddd',
         defaults: {
             name: {value:""},
+            username: {value:""},
+            password: {value:""}
         },
         inputs:1,
         outputs:1,
@@ -19,7 +21,19 @@
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
+    <div class="form-row">
+        <label for="node-input-username"><i class="icon-tag"></i> Username</label>
+        <input type="text" id="node-input-username">
+    </div>
+    <div class="form-row">
+        <label for="node-input-password"><i class="icon-tag"></i> Password</label>
+        <input type="password" id="node-input-password">
+    </div>
+
 </script>
+
+
+
 
 <script type="text/x-red" data-help-name="get-outlook-auth">
     <p>A node that uses puppeteer to get an auth token from Microsoft.</p>

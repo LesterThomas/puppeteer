@@ -1,15 +1,15 @@
-var credentials = require('./cred.js'); 
 const puppeteer = require('puppeteer');
 const escapeXpathString = str => {
   const splitedQuotes = str.replace(/'/g, `', "'", '`);
   return `concat('${splitedQuotes}', '')`;
 };
 
-
 module.exports = function (RED) {
   class GetOutlookAuthNode {
     constructor (config) {
       RED.nodes.createNode(this, config);
+      this.username = config.username;
+      this.password = config.password;
       this.on('input', this.handleMsg);
     }
 
@@ -47,17 +47,16 @@ const clickByText = async (page, text) => {
 
 const getOutlookToken = async(callbackHandler, node) => {
 
-
-  var code = await processPuppeteerCommands();
-  console.log('After await');
-  
+  username = node.username;
+  password = node.password;
+  var code = await processPuppeteerCommands(username, password);
   callbackHandler(node, code);
 
 }
 
-const processPuppeteerCommands = async() => {
+const processPuppeteerCommands = async(username, password) => {
 
-  const browser = await puppeteer.launch({headless: true,  slowMo: 10}); //devtools: true,
+  const browser = await puppeteer.launch({headless: false,  slowMo: 10}); //devtools: true,
   const page = await browser.newPage();
 
 
@@ -65,7 +64,7 @@ const processPuppeteerCommands = async() => {
     await page.goto('https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=631ac5af-28a2-4dd5-940d-919a914b8a4b&response_type=code&redirect_uri=https://google.com/auth&response_mode=query&scope=openid%20https://graph.microsoft.com/user.read%20https://graph.microsoft.com/calendars.read&state=12345');
     await page.waitFor('#i0116');
     await page.click('#i0116'); 
-    await page.keyboard.type(credentials.username);
+    await page.keyboard.type(username);
     await page.click('#idSIButton9'); 
   } catch (error){
     console.log(error);
@@ -75,7 +74,7 @@ const processPuppeteerCommands = async() => {
   try {
     await page.waitFor('#i0118');
     await page.click('#i0118'); 
-    await page.keyboard.type(credentials.password);
+    await page.keyboard.type(password);
     await page.click('#idSIButton9'); 
   } catch (error){
     console.log(error);
