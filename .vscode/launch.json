@@ -2,11 +2,19 @@
   "version": "0.2.0",
       "configurations": [
           
+
+          
           {
               "type": "node",
               "request": "launch",
-              "name": "Launch Program",
+              "name": "roomBooking",
               "program": "${workspaceFolder}/roomBooking.js"
-          }
+          },
+          {
+            "type": "node",
+            "request": "launch",
+            "name": "outlookToken",
+            "program": "${workspaceFolder}/outlookToken.js"
+        }
       ]
   }

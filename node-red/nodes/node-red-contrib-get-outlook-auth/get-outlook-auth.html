@@ -1,0 +1,31 @@
+<script type="text/javascript">
+    RED.nodes.registerType('service-order', {
+        category: '5G Services',
+        color: '#a6bdff',
+        defaults: {
+            name: {value:""},
+            server: {value:"", type:"naas-server"},
+        },
+        inputs:1,
+        outputs:1,
+        icon: "file.png",
+        label: function() {
+            return this.name||"service-order";
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="service-order">
+    <div class="form-row">
+        <label for="node-input-server"><i class="icon-tag"></i> Server</label>
+        <input type="text" id="node-input-server" placeholder="Server">
+    </div>    
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="service-order">
+    <p>A node that fires a TM Forum Service Order to a configured server, from a series of input order lines. Use in conjunction with the Service Spec node to generat the input message for each order line.</p>
+</script>

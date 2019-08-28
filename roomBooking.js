@@ -204,8 +204,11 @@ const condeco = async(page, browser) => {
     ];
 
   var holidayArr = [{
-    startDate: new Date("2019-07-22"),
-    endDate: new Date("2019-08-08")
+    startDate: new Date("2019-08-20"),  //start date is last working day before holiday
+    endDate: new Date("2019-08-22")
+  },{
+    startDate: new Date("2019-08-28"),
+    endDate: new Date("2019-08-30")
   }];
 
   var eventArray = [];
