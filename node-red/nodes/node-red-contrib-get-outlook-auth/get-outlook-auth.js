@@ -1,87 +1,100 @@
+var credentials = require('./cred.js'); 
+const puppeteer = require('puppeteer');
+const escapeXpathString = str => {
+  const splitedQuotes = str.replace(/'/g, `', "'", '`);
+  return `concat('${splitedQuotes}', '')`;
+};
+
+
 module.exports = function (RED) {
-  class ServiceOrderNode {
+  class GetOutlookAuthNode {
     constructor (config) {
       RED.nodes.createNode(this, config);
-      this.server = RED.nodes.getNode(config.server);
-      if (this.server) {
-        // Do something with:
-        this.host = this.server.host;
-        //  this.server.port
-      } else {
-        // No config node configured
-        this.host = 'no host';
-      }
-      this.serviceSpecArray = [];
       this.on('input', this.handleMsg);
     }
 
     handleMsg (msg) {
       console.log('input message received');
-      this.serviceSpecArray.push(msg.payload);
-
-      if (this.timer) {
-        console.log('Cancel previous timer');
-        // cancel previous timer
-        clearTimeout(this.timer);
-        this.timer = null;
-      }
-      this.timer = setTimeout(function () { this.buildServiceOrder(); }.bind(this), 1000);
+      getOutlookToken(this.handleCallback, this);
     }
 
-    postServiceOrder (inServiceOrder) {
-      var request = require('request');
-      var options = {
-        url: this.host,
-        method: 'POST',
-        body: inServiceOrder,
-        json: true,
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      };
-      options.headers[this.server.apikeyname] = this.server.apikeyvalue;
-      console.log('calling naas server with options: ');
-      console.log(options);
-
-      request(options, async function (error, response, body) {
-        if (!error && response.statusCode === 200) {
-          console.log('naas server returned : ');
-          console.log(body);
-          var msg = {
-            payload: body
-          };
-          this.send(msg);
-        } else {
-          console.log('naas server returned error: ');
-          console.log('status: ' + response.statusCode);
-          console.log('Error: ' + body);
-          var errmsg = { payload: { status: response.statusCode, error: body } };
-          this.send(errmsg);
-        }
-      }.bind(this));
+    handleCallback(node, code) {
+      var msg={payload: code}
+      node.send(msg);    
     }
 
-    buildServiceOrder () {
-      console.log('in PostServiceOrder');
-      console.log(this); 
-      for (var key = 0; key < this.serviceSpecArray.length; key++) {
-        this.serviceSpecArray[key].id = key + 1;
-        this.serviceSpecArray[key].action = 'add';
-      }
-      var serviceOrder = {
-        description: 'Service Order',
-        category: 'Network Service',
-        orderDate: Date.now(),
-        relatedParty: [],
-        orderItem: this.serviceSpecArray
-      };
 
-      this.serviceSpecArray = [];
-      console.log(serviceOrder);
-
-      // POST this order to the API
-      this.postServiceOrder(serviceOrder);
-    }
   }
-  RED.nodes.registerType('service-order', ServiceOrderNode);
+  RED.nodes.registerType('get-outlook-auth', GetOutlookAuthNode);
 };
+
+
+
+
+const clickByText = async (page, text) => {
+  const escapedText = escapeXpathString(text);
+  const linkHandlers = await page.$x(`//a[contains(text(), ${escapedText})]`);
+  
+  if (linkHandlers.length > 0) {
+    await linkHandlers[0].click();
+  } else {
+    throw new Error(`Link not found: ${text}`);
+  }
+};
+
+
+
+
+const getOutlookToken = async(callbackHandler, node) => {
+
+
+  var code = await processPuppeteerCommands();
+  console.log('After await');
+  
+  callbackHandler(node, code);
+
+}
+
+const processPuppeteerCommands = async() => {
+
+  const browser = await puppeteer.launch({headless: true,  slowMo: 10}); //devtools: true,
+  const page = await browser.newPage();
+
+
+  try {
+    await page.goto('https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=631ac5af-28a2-4dd5-940d-919a914b8a4b&response_type=code&redirect_uri=https://google.com/auth&response_mode=query&scope=openid%20https://graph.microsoft.com/user.read%20https://graph.microsoft.com/calendars.read&state=12345');
+    await page.waitFor('#i0116');
+    await page.click('#i0116'); 
+    await page.keyboard.type(credentials.username);
+    await page.click('#idSIButton9'); 
+  } catch (error){
+    console.log(error);
+  }
+  await delay(1000);
+
+  try {
+    await page.waitFor('#i0118');
+    await page.click('#i0118'); 
+    await page.keyboard.type(credentials.password);
+    await page.click('#idSIButton9'); 
+  } catch (error){
+    console.log(error);
+  }
+  await delay(1000);
+
+  var url=page.url();
+  //console.log(url);  
+  var code = url.split('code=')[1];
+  code =code.split('&state')[0];
+  console.log(code);
+
+  await delay(1000);
+  await browser.close();
+  return code;
+}
+
+
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
+
+
