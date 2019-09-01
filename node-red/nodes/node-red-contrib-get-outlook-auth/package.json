@@ -9,6 +9,8 @@
     "version": "0.1.0",
     "node-red": {
         "nodes": {
+            "send-tweet": "send-tweet.js",
+            "twitter-connection": "twitter-connection.js",
             "get-outlook-auth": "get-outlook-auth.js",
             "microsoft-api-connection": "microsoft-api-connection.js",
             "get-outlook-calendar": "get-outlook-calendar.js"

@@ -9,12 +9,11 @@ module.exports = function (RED) {
   }
 
   async function getAccessToken (node, callbackFunction) {
-
     console.log('this.accessToken');
     console.log(this.accessToken);
     console.log('this.accessCode');
     console.log(this.accessCode);
-    
+
     if (!this.accessToken) {
       this.accessCode = await getAccessCode(this.username, this.password);
       console.log(this.accessCode);
@@ -35,13 +34,13 @@ module.exports = function (RED) {
       }
     };
 
-    //console.log('calling postGetAuthToken with options: ');
-    //console.log(options);
+    // console.log('calling postGetAuthToken with options: ');
+    // console.log(options);
 
     request(options, async function (error, response, body) {
-      //console.log(error);
-      //console.log(response);
-      //console.log(body);
+      // console.log(error);
+      // console.log(response);
+      // console.log(body);
 
       if (!error && response.statusCode === 200) {
         console.log('server returned : ');
@@ -60,7 +59,6 @@ module.exports = function (RED) {
 
   RED.nodes.registerType('microsoft-api-connection', MicrosoftAPIConfigNode);
 };
-
 
 const getAccessCode = async (username, password) => {
   const browser = await puppeteer.launch({ headless: false, slowMo: 10 }); // devtools: true,
