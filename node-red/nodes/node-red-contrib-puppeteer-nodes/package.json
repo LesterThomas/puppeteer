@@ -1,10 +1,10 @@
 {
-    "name": "node-red-contrib-get-outlook-auth",
+    "name": "node-red-contrib-puppeteer-nodes",
     "author": {
         "name": "Lester Thomas",
         "email": "lesterthomas@hotmail.com"
     },
-    "description": "Experimental nodes to get Microsoft auth code using puppeteer",
+    "description": "Experimental nodes using puppeteer",
     "license": "MIT",
     "version": "0.1.0",
     "node-red": {
