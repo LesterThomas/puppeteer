@@ -17,7 +17,7 @@ module.exports = function (RED) {
 };
 
 async function sendTweet (username, password, text) {
-  const browser = await puppeteer.launch({ headless: false, slowMo: 100 }); // devtools: true,
+  const browser = await puppeteer.launch({ headless: true, slowMo: 100 }); // devtools: true,
   const page = await browser.newPage();
 
   try {
