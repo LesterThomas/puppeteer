@@ -10,13 +10,13 @@ module.exports = function (RED) {
 
     handleMsg (msg) {
       console.log('input message received');
-      sendTweet(this.server.username, this.server.password, msg.payload);
+      sendTweet(this.server.username, this.server.password, msg.payload, this);
     }
   }
   RED.nodes.registerType('send-tweet', SendTweet);
 };
 
-async function sendTweet (username, password, text) {
+async function sendTweet (username, password, text, node) {
   const browser = await puppeteer.launch({ headless: true, slowMo: 100 }); // devtools: true,
   const page = await browser.newPage();
 
@@ -34,12 +34,16 @@ async function sendTweet (username, password, text) {
     await page.click('#react-root > div > div > div > header > div > div > div > div > div.css-1dbjc4n.r-1awozwy.r-jw8lkh.r-e7q0ms > a > div > svg > g > path');
     await page.keyboard.type(text);
     await page.click('#react-root > div > div > div.r-1d2f490.r-u8s1d.r-zchlnj.r-ipm5af.r-184en5c > div > div > div > div > div.css-1dbjc4n.r-1habvwh.r-18u37iz.r-1pi2tsx.r-1777fci.r-1xcajam.r-ipm5af.r-g6jmlv > div.css-1dbjc4n.r-t23y2h.r-1wbh5a2.r-rsyp9y.r-1pjcn9w.r-htvplk.r-1udh08x.r-1potc6q > div > div.css-1dbjc4n.r-16y2uox.r-1wbh5a2.r-1jgb5lz.r-1ye8kvj.r-13qz1uu > div > div > div:nth-child(1) > div > div > div > div.css-1dbjc4n.r-1iusvr4.r-46vdb2.r-15d164r.r-9cviqr.r-bcqeeo.r-1bylmt5.r-13tjlyg.r-7qyjyx.r-1ftll1t > div:nth-child(2) > div > div > div:nth-child(2) > div.css-18t94o4.css-1dbjc4n.r-urgr8i.r-42olwf.r-sdzlij.r-1phboty.r-rs99b7.r-1w2pmg.r-1n0xq6e.r-1vuscfd.r-1dhvaqw.r-1fneopy.r-o7ynqc.r-6416eg.r-lrvibr > div > span > span');
+    await page.waitFor('#react-root > div > div > div.css-1dbjc4n.r-18u37iz.r-1pi2tsx.r-13qz1uu.r-417010');
+    const innerText = await page.evaluate(() => document.querySelector('#react-root > div > div > div.css-1dbjc4n.r-18u37iz.r-1pi2tsx.r-13qz1uu.r-417010').innerText);
+    console.log(innerText);
+    var msg = { payload: innerText };
+    node.send(msg);
 
-    await delay(100000);
+    await delay(1000);
   } catch (error) {
     console.log(error);
   }
-  await delay(1000);
   await delay(1000);
   await browser.close();
 };

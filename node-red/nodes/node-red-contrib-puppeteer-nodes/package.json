@@ -6,7 +6,7 @@
     },
     "description": "Experimental nodes using puppeteer",
     "license": "MIT",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "node-red": {
         "nodes": {
             "send-tweet": "send-tweet.js",
